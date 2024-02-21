@@ -90,7 +90,7 @@ jobs:
                 MY_TOKEN: ${{ steps.token.outputs.token }}
               run: |
                 git config --global url.https://$MY_TOKEN@github.com/.insteadOf https://github.com/ && \
-                git config --global init.defaultBranch main  && \
+                git config --global init.defaultBranch main
 
             - name: Commit and Push Changes
               uses: stefanzweifel/git-auto-commit-action@v5
