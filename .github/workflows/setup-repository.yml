@@ -79,7 +79,7 @@ jobs:
                 REPOSITORY_ID: ${{ needs.check_if_template_repository.outputs.repository_id }}
                 CLONE_URL: ${{ needs.check_if_template_repository.outputs.clone_url }}
               run: |
-                cruft create --no-input --extra-context '{"github_repository_id": "$REPOSITORY_ID"}' ./template-repository/ && \
+                cruft create --no-input --extra-context '{"github_repository_id": $REPOSITORY_ID}' ./template-repository/ && \
                 cd my-package && \
                 cruft update --variables-to-update '{"with_fastapi_api": "1", "package_name": "Test API"}' -y
 
@@ -99,7 +99,7 @@ jobs:
                 git config --global user.email "github-actions[bot]@users.noreply.github.com"
                 git config --global user.name "github-actions[bot]"
                 git commit -m 'Initialize repository from template.'
-                git push origin HEAD:cookiecutter
+                git push origin HEAD:cookiecut
                   
 
 
