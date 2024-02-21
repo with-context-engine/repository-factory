@@ -1,19 +1,33 @@
 name: Parse Issue
+
 on:
   issues:
     types: opened
+
 concurrency: 'main'
+
 jobs:
-  - uses: stefanbuck/github-issue-parser@v3
-    id: issue-parser
-    with:
-      template-path: .github/ISSUE_TEMPLATE/setup-repository.yml
-  - run: echo '${{ steps.issue-parser.outputs.jsonString }}' > setup.json
-  - run: cat setup.json
-  - uses: peter-evans/close-issue@v1
-    env: 
-      ISSUE: ${{ github.event.issue.number }}
-    with:
-      issue-number: 
-      comment: 'Issue #: $ISSUE We will now proceed to setup your repository.'
+  parse-issue:
+    runs-on: ubuntu-latest
+    steps:
+    
+    - name: Parse Issue
+      uses: stefanbuck/github-issue-parser@v3
+      id: issue-parser
+      with:
+        template-path: .github/ISSUE_TEMPLATE/setup-repository.yml
+
+    - name: Create setup.json
+      run: echo '${{ steps.issue-parser.outputs.jsonString }}' > setup.json
+    
+    - name: Read the file
+      run: cat setup.json
+  
+    - name: Close Issue
+      if: ${{ steps.issue-parser.outputs.jsonString != null }}
+      uses: peter-evans/close-issue@v1
+      with:
+        issue-number: ${{ github.event.issue.number }}
+        comment: 'Issue #: ${{ github.event.issue.number }} We will now proceed to setup your repository.'
+
       
