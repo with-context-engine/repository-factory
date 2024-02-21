@@ -1,0 +1,51 @@
+name: 📇 Make a Repository Customization
+description: This is an issue template that allows you to choose how you want your desired Repository to appear. 
+title: 📇 Make a Repository Customization
+body:
+- type: markdown
+  attributes:
+    value: |
+      ## Introduction
+      Please select the type of Repository you would like to create.
+
+      ## Table of Choices
+      | No. | Category | Item | Jupyter | Additional Info |
+      |-----|----------|------|---------|-------|
+      | 1   | Python   | Package Repository        | [ ] | `typer` is enabled by default with ability to push to PyPi |
+      | 2   | Python   | Pydantic Repository       | [ ] | `mypy` Pydantic model checking is enabled by default with ability to push to PyPi |
+      | 3   | Streamlit| Streamlit Repository      | [ ] | `streamlit` is enabled by default and ability to push to ECR is enabled |
+      | 4   | FastAPI  | FastAPI                   | [X] | `fastapi` is enabled by default, with ability to push repo to ECR provided variables are supplied |
+      | 5   | FastAPI  | FastAPI with ML           | [X] | `fastapi` is enabled by default, with ability to deploy a novel model from a foundation repository like [🤗](huggingface.co) to FastAPI endpoint from AWS API Gateway + AWS λ |
+      | 6   | FastAPI  | FastAPI with ML Training  | [X] | `fastapi` is enabled by default, with ability to train the model. Data versioning is enabled via `DVC` and remote is configured. There is further ability to create FastAPI endpoint from AWS API Gateway + AWS λ  |
+
+- type: dropdown
+  id: python
+  attributes:
+    label: Python Repository
+    multiple: false
+    options:
+      - 1-Package Repository
+      - 2-Pydantic Repository
+
+- type: dropdown
+  id: streamlit
+  attributes:
+    label: Streamlit Repository
+    multiple: false
+    options:
+      - 3-Streamlit Repository
+
+- type: dropdown
+  id: fastapi
+  attributes:
+    label: FastAPI Repository
+    multiple: false
+    options:
+      - 4-FastAPI
+      - 5-FastAPI with ML
+      - 6-FastAPI with ML Training
+
+- type: markdown
+  attributes:
+    value: |
+      **Important**: The default option is Package Repository.

@@ -1,0 +1,19 @@
+name: Parse Issue
+on:
+  issues:
+    types: opened
+concurrency: 'main'
+jobs:
+  - uses: stefanbuck/github-issue-praser@v3
+    id: issue-parser
+    with:
+      template-path: .github/ISSUE_TEMPLATE/setup-repository.yml
+  - run: echo '${{ steps.issue-parser.outputs.jsonString }}' > setup.json
+  - run: cat setup.json
+  - uses: peter-evans/close-issue@v1
+    env: 
+      ISSUE: ${{ github.event.issue.number }}
+    with:
+      issue-number: 
+      comment: 'Issue #: $ISSUE We will now proceed to setup your repository.'
+      
