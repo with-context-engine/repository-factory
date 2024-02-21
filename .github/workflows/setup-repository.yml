@@ -82,7 +82,7 @@ jobs:
                 cruft create --no-input --extra-context '{"github_repository_id": "${REPOSITORY_ID}"}' ./template-repository/ && \
                 cd my-package && \
                 cruft update --variables-to-update '{"with_fastapi_api": "1", "package_name": "Test API"}' -y && \
-                git init && \
+                git init
 
             - name: Setup credentials to access private repositories
               env:
