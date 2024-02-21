@@ -1,8 +1,5 @@
 name: Setup Repository
 on: 
-    push:
-        paths:
-            - cookiecutter.json
     workflow_dispatch:
 
 jobs:

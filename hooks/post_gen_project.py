@@ -51,20 +51,16 @@ if not is_ml_inference_script:
     os.remove(f"src/{package_name}/deploy-inference.py")
     shutil.rmtree(f"src/{package_name}/deploy")
 
-# Neither ML training nor inference is selected.
-if not is_ml_training_script and not is_ml_inference_script:
+# Neither ML training nor inference is selected and no FastAPI or Streamlit.
+if not is_ml_training_script and not is_ml_inference_script or (not with_fastapi_api and not with_streamlit_app):
     os.remove(f"src/{package_name}/settings.py")
     os.remove(".github/workflows/serve.yml")
+    shutil.rmtree("src/serve")
 
 # Remove Typer if not selected.
 if not with_typer_cli:
     os.remove(f"src/{package_name}/cli.py")
     os.remove("__tests__/test_cli.py")
-
-# Remove Serve Directory if neither FastAPI nor Streamlit is selected.
-if not with_fastapi_api and not with_streamlit_app:
-    os.remove(".github/workflows/serve.yml")
-    shutil.rmtree("src/serve")
 
 if is_ml_inference_script and is_api_endpoint:
     os.remove(".github/workflows/ship.yml")
