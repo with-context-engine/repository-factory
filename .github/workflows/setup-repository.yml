@@ -61,8 +61,9 @@ jobs:
                 cruft create --no-input --extra-context '{"github_repository_id": "${REPOSITORY_ID}"}' ./template-repository/
                 cd my-package
                 cruft update --variables-to-update '{"with_fastapi_api": "1", "package_name": "Test API"}' -y
+                git config init.defaultBranch main
                 git init
-                git config --global init.defaultBranch main
+                
 
 
             - name: Commit and Push Changes
