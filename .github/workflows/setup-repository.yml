@@ -32,32 +32,32 @@ jobs:
           repository_id: ${{ steps.github_api.outputs.REPOSITORY_ID }}
           is_template: ${{ steps.github_api.outputs.EXIT_STATUS }}
 
-    setup_repository:
-        name: Setup Repository
-        runs-on: ubuntu-latest
-        needs: check_if_template_repository
-        if: |
-          needs.check_if_template_repository.outputs.is_template == 'true'
-        permissions:
-            id-token: write
-            contents: write
-        steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v4
-              with:
-                path: template
+    # setup_repository:
+    #     name: Setup Repository
+    #     runs-on: ubuntu-latest
+    #     needs: check_if_template_repository
+    #     if: |
+    #       needs.check_if_template_repository.outputs.is_template == 'true'
+    #     permissions:
+    #         id-token: write
+    #         contents: write
+    #     steps:
+    #         - name: Checkout Repository
+    #           uses: actions/checkout@v4
+    #           with:
+    #             path: template
             
-            - name: Setup Python
-              uses: actions/setup-python@v4
-              with:
-                python-version: 3.10
+    #         - name: Setup Python
+    #           uses: actions/setup-python@v4
+    #           with:
+    #             python-version: 3.10
 
-            - name: Install Cruft and Apply Issue Choice
-              env: 
-                REPOSITORY_ID: ${{ needs.check_if_template_repository.outputs.repository_id }}
-              run: |
-                pip install --no-input cruft
-                cruft create --no-input --extra-context '{"github_repository_id": "${REPOSITORY_ID}"}' ./template
+    #         - name: Install Cruft and Apply Issue Choice
+    #           env: 
+    #             REPOSITORY_ID: ${{ needs.check_if_template_repository.outputs.repository_id }}
+    #           run: |
+    #             pip install --no-input cruft
+    #             cruft create --no-input --extra-context '{"github_repository_id": "${REPOSITORY_ID}"}' ./template
                 
 
               
