@@ -62,7 +62,7 @@ jobs:
                 cd my-package
                 cruft update --variables-to-update '{"with_fastapi_api": "1", "package_name": "Test API"}' -y
                 git init
-                git add .
+                git config --global init.defaultBranch main
 
 
             - name: Commit and Push Changes
