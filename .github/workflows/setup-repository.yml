@@ -89,17 +89,18 @@ jobs:
                 shopt -s extglob
                 rm -rf template-repository/!(.git)
                 cp -ra my-package/. template-repository/
-                ls -R template-repository/
+                ls -R -a template-repository/
             
             - name: Git commit and push to new branch
               shell: bash
               run: |
                 cd template-repository/
+                rm .github/workflows/setup-repository.yml
                 git add -A
                 git config --global user.email "github-actions[bot]@users.noreply.github.com"
                 git config --global user.name "github-actions[bot]"
                 git commit -m 'Initialize repository from template.'
-                git push origin HEAD:cookiecut
+                git push origin HEAD:cookiecutter
                   
 
 
