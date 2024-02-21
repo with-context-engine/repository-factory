@@ -8,6 +8,9 @@ body:
       ## Introduction
       Please select one of the types of Repository you would like to create.
 
+      ## :warning: Defaults
+      The default option is Package Repository.
+
       ## Table of Choices
       | No. | Category | Item | Jupyter | Additional Info |
       |-----|----------|------|---------|-------|
@@ -44,8 +47,3 @@ body:
       - 4-FastAPI
       - 5-FastAPI with ML
       - 6-FastAPI with ML Training
-
-- type: markdown
-  attributes:
-    value: |
-      **Important**: The default option is Package Repository.
