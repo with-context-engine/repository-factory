@@ -82,37 +82,30 @@ jobs:
                 cruft create --no-input --extra-context '{"github_repository_id": "$REPOSITORY_ID"}' ./template-repository/ && \
                 cd my-package && \
                 cruft update --variables-to-update '{"with_fastapi_api": "1", "package_name": "Test API"}' -y && \
-                cd .. && \
-                ls -R
-                
-            - name: Prepare root directory
+
+            - name: Delete contents of template-repository/ except .git
               shell: bash
               run: |
-                find ./ -maxdepth 1 \
-                ! -name '.git' \
-                ! -name 'my-package' \
-                ! -name '.' \
-                ! -exec rm -rf {} +
-
-            - name: Move files to root
+                shopt -s extglob
+                rm -rf template-repository/!(.git)
+            
+            - name: Copy contents of my-package/ to template-repository/
               shell: bash
               run: |
-                rsync -r ./my-package/*/ . && \
-                rm -rf ./my-package/         
+                cp -r my-package/* template-repository/
 
-            - name: Reinitialize git repository
+            - name: Git add all files
               shell: bash
-              # Reinitialize git after scaffolding this repository.
-              # We use `git checkout --orphan` to create a branch in a git init-like state.
-              # By force pushing this as `main` we end up with a new clean git history.
               run: |
-                git config --global user.email "github-actions[bot]@users.noreply.github.com" && \
-                git config --global user.name "github-actions[bot]" && \
-                git checkout --orphan temp-branch && \
-                git add . && \
-                git commit -m 'Initial commit' && \
-                git push origin temp-branch:cookiecutter -f
+                cd template-repository/
+                git add -A
 
+            - name: Git commit and push to new branch
+              shell: bash
+              run: |
+                git commit -m 'Initialize repository from template.'
+                git push origin HEAD:cookiecutter
+                  
 
 
             
