@@ -45,6 +45,8 @@ jobs:
         steps:
             - name: Checkout Repository
               uses: actions/checkout@v4
+              with:
+                path: template-repository
             
             - name: Setup Python
               uses: actions/setup-python@v4
@@ -56,7 +58,7 @@ jobs:
                 REPOSITORY_ID: ${{ needs.check_if_template_repository.outputs.repository_id }}
               run: |
                 pip install --no-input cruft
-                cruft create --no-input --extra-context '{"github_repository_id": "${REPOSITORY_ID}"}' .
+                cruft create --no-input --extra-context '{"github_repository_id": "${REPOSITORY_ID}"}' ./template-repository/
                 cd my-package
                 cruft update --variables-to-update '{"with_fastapi_api": "1", "package_name": "Test API"}' -y
 
