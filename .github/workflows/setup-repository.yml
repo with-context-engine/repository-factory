@@ -90,7 +90,8 @@ jobs:
                 shopt -s extglob
                 rm -rf template-repository/!(.git)
                 cp -ra my-package/. template-repository/
-                ls -R -a template-repository/
+                
+            # Additional logic for DVC and other tools can be added here as per the repository template.
             
             - name: Git commit and push to new branch
               shell: bash
