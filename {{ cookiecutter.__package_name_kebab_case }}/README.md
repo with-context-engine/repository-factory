@@ -1,4 +1,5 @@
-[![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url={{ cookiecutter.package_url.replace("https://", "git@").replace(".com/", ".com:") if cookiecutter.private_package_repository_url else cookiecutter.package_url }})
+[![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url={{ cookiecutter.package_url.replace("https://", "git@").replace(".com/", ".com:") if cookiecutter.private_package_repository_url else cookiecutter.package_url }}) [![Open in GitHub Codespaces](https://img.shields.io/static/v1?label=GitHub%20Codespaces&message=Open&color=blue&logo=github)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo={{cookiecutter.github_repository_id|int}})
+
 
 # {{ cookiecutter.package_name }}
 

@@ -1,8 +1,5 @@
 name: Setup Repository
 on: 
-    push:
-        paths:
-            - cookiecutter.json
     workflow_dispatch:
 
 jobs:
@@ -11,11 +8,11 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Generate App Token
-              uses: actions/create-github-app-token@v1
+              uses: tibdex/github-app-token@v2
               id: token
               with:
-                app-id: ${{ vars.APP_ID}}
-                private-key: ${{ secrets.APP_PEM_PRIVATE_KEY}}
+                app_id: ${{ vars.APP_ID}}
+                private_key: ${{ secrets.APP_PEM_PRIVATE_KEY}}
             
             - name: Check if template repository
               shell: bash
@@ -25,49 +22,87 @@ jobs:
               run: |
                 RESPONSE=$(curl -L --silent \
                 -H "Accept: application/vnd.github+json" \
-                -H "Authorization: Bearer $PAT_TOKEN" \
+                -H "Authorization: Bearer $APP_TOKEN" \
                 -H "X-GitHub-Api-Version: 2022-11-28" \
-                https://api.github.com/repos/$GITHUB_REPOSITORY)
+                https://api.github.com/repos/$GITHUB_REPOSITORY )
 
                 echo "REPOSITORY_ID=$(echo $RESPONSE | jq -r ".id")" >> $GITHUB_OUTPUT
                 echo "EXIT_STATUS=$(echo $RESPONSE | jq -r ".is_template")" >> $GITHUB_OUTPUT
+                echo "CLONE_URL=$(echo $RESPONSE | jq -r ".clone_url")" >> $GITHUB_OUTPUT
+
         outputs:
           repository_id: ${{ steps.github_api.outputs.REPOSITORY_ID }}
           is_template: ${{ steps.github_api.outputs.EXIT_STATUS }}
+          clone_url: ${{ steps.github_api.outputs.CLONE_URL }}
 
     setup_repository:
         name: Setup Repository
         runs-on: ubuntu-latest
         needs: check_if_template_repository
         if: |
-          needs.check_if_template_repository.outputs.is_template == 'true'
+          needs.check_if_template_repository.outputs.is_template == 'false'
         permissions:
             id-token: write
             contents: write
         steps:
+            - name: Generate App Token
+              uses: tibdex/github-app-token@v2
+              id: token
+              with:
+                app_id: ${{ vars.APP_ID}}
+                private_key: ${{ secrets.APP_PEM_PRIVATE_KEY}}
+
             - name: Checkout Repository
               uses: actions/checkout@v4
               with:
-                path: template
+                path: template-repository
+                token: ${{ steps.token.outputs.token }}
             
             - name: Setup Python
-              uses: actions/setup-python@v4
+              uses: actions/setup-python@v5
               with:
-                python-version: 3.10
+                python-version: "3.11"
+
+            - name: Create and activate a UV virtual environment (Unix)
+              run: |
+                curl -LsSf https://astral.sh/uv/install.sh | sh
+                uv venv .venv
+                echo "VIRTUAL_ENV=.venv" >> $GITHUB_ENV
+                echo "$PWD/.venv/bin" >> $GITHUB_PATH
+
+            - name: Install Cruft
+              run: |
+                uv pip install cruft
 
             - name: Install Cruft and Apply Issue Choice
+              # Update this to accept a JSON as a string and pass it to the cruft update command. 
               env: 
                 REPOSITORY_ID: ${{ needs.check_if_template_repository.outputs.repository_id }}
+                CLONE_URL: ${{ needs.check_if_template_repository.outputs.clone_url }}
               run: |
-                pip install --no-input cruft
-                cruft create --no-input --extra-context '{"github_repository_id": "${REPOSITORY_ID}"}' ./template
-                
-
-              
-        
+                cruft create --no-input --extra-context '{"github_repository_id": "'$REPOSITORY_ID'"}' ./template-repository/ && \
+                cd my-package && \
+                cruft update --variables-to-update '{"with_fastapi_api": "1", "package_name": "Test API"}' -y
             
-
-
+            - name: Delete contents of template-repository/ except .git
+              shell: bash
+              run: |
+                shopt -s extglob
+                rm -rf template-repository/!(.git)
+                cp -ra my-package/. template-repository/
+                ls -R -a template-repository/
+            
+            - name: Git commit and push to new branch
+              shell: bash
+              run: |
+                cd template-repository/
+                rm .github/workflows/setup-repository.yml
+                git add -A
+                git config --global user.email "github-actions[bot]@users.noreply.github.com"
+                git config --global user.name "github-actions[bot]"
+                git commit -m 'Initialize repository from template.'
+                git push origin HEAD:cookiecutter
+                  
 
 
             
