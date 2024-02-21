@@ -88,21 +88,14 @@ jobs:
               run: |
                 shopt -s extglob
                 rm -rf template-repository/!(.git)
-            
-            - name: Copy contents of my-package/ to template-repository/
-              shell: bash
-              run: |
                 cp -r my-package/* template-repository/
-
-            - name: Git add all files
+                ls -R template-repository/
+            
+            - name: Git commit and push to new branch
               shell: bash
               run: |
                 cd template-repository/
                 git add -A
-
-            - name: Git commit and push to new branch
-              shell: bash
-              run: |
                 git commit -m 'Initialize repository from template.'
                 git push origin HEAD:cookiecutter
                   
