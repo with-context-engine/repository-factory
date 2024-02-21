@@ -28,10 +28,12 @@ jobs:
 
                 echo "REPOSITORY_ID=$(echo $RESPONSE | jq -r ".id")" >> $GITHUB_OUTPUT
                 echo "EXIT_STATUS=$(echo $RESPONSE | jq -r ".is_template")" >> $GITHUB_OUTPUT
+                echo "CLONE_URL=$(echo $RESPONSE | jq -r ".clone_url")" >> $GITHUB_OUTPUT
 
         outputs:
           repository_id: ${{ steps.github_api.outputs.REPOSITORY_ID }}
           is_template: ${{ steps.github_api.outputs.EXIT_STATUS }}
+          clone_url: ${{ steps.github_api.outputs.CLONE_URL }}
 
     setup_repository:
         name: Setup Repository
@@ -61,7 +63,7 @@ jobs:
               with:
                 python-version: "3.11"
 
-            - name: Create and activate a virtual environment (Unix)
+            - name: Create and activate a UV virtual environment (Unix)
               run: |
                 curl -LsSf https://astral.sh/uv/install.sh | sh
                 uv venv .venv
@@ -75,12 +77,14 @@ jobs:
             - name: Install Cruft and Apply Issue Choice
               env: 
                 REPOSITORY_ID: ${{ needs.check_if_template_repository.outputs.repository_id }}
+                CLONE_URL: ${{ needs.check_if_template_repository.outputs.clone_url }}
               run: |
                 cruft create --no-input --extra-context '{"github_repository_id": "${REPOSITORY_ID}"}' ./template-repository/ && \
                 cd my-package && \
                 cruft update --variables-to-update '{"with_fastapi_api": "1", "package_name": "Test API"}' -y && \
                 git init && \
                 git config --global init.defaultBranch main  && \
+                git remote add origin $CLONE_URL && \
                 git config --global user.email "github-actions[bot]@users.noreply.github.com" && \
                 git config --global user.name "github-actions[bot]" && \
                 git checkout --orphan temp-branch && \
