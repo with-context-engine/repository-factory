@@ -57,21 +57,19 @@ jobs:
               env: 
                 REPOSITORY_ID: ${{ needs.check_if_template_repository.outputs.repository_id }}
               run: |
-                pip install --no-input cruft
-                cruft create --no-input --extra-context '{"github_repository_id": "${REPOSITORY_ID}"}' ./template-repository/
-                cd my-package
-                cruft update --variables-to-update '{"with_fastapi_api": "1", "package_name": "Test API"}' -y
-                git init
-                
-            - name: Reinitialize git repository
-              shell: bash
-              run: |
-                git config --global user.email "github-actions[bot]@users.noreply.github.com" && \
-                git config --global user.name "github-actions[bot]" && \
+                pip install --no-input cruft && \
+                cruft create --no-input --extra-context '{"github_repository_id": "${REPOSITORY_ID}"}' ./template-repository/ && \
+                cd my-package && \
+                cruft update --variables-to-update '{"with_fastapi_api": "1", "package_name": "Test API"}' -y && \
+                git init && \
+                git config init.defaultBranch main  && \
+                git config user.email "github-actions[bot]@users.noreply.github.com" && \
+                git config user.name "github-actions[bot]" && \
                 git checkout --orphan temp-branch && \
                 git add . && \
                 git commit -m 'Initial commit' && \
-                git push origin temp-branch:cookiecutter -f
+                git push origin temp-branch:cookiecutter -f 
+
 
             
 
