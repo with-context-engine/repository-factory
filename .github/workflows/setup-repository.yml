@@ -51,7 +51,7 @@ jobs:
             - name: Setup Python
               uses: actions/setup-python@v4
               with:
-                python-version: "3.10"
+                python-version: "3.11"
 
             - name: Install Cruft and Apply Issue Choice
               env: 
@@ -61,8 +61,9 @@ jobs:
                 cruft create --no-input --extra-context '{"github_repository_id": "${REPOSITORY_ID}"}' ./template-repository/
                 cd my-package
                 cruft update --variables-to-update '{"with_fastapi_api": "1", "package_name": "Test API"}' -y
-                cd ..
-                ls -R
+                git init
+                git add .
+
 
             - name: Commit and Push Changes
               uses: stefanzweifel/git-auto-commit-action@v5
