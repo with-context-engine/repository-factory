@@ -77,6 +77,7 @@ jobs:
             - name: Install Cruft and Apply Issue Choice
               env: 
                 REPOSITORY_ID: ${{ needs.check_if_template_repository.outputs.repository_id }}
+                CLONE_URL: ${{ needs.check_if_template_repository.outputs.clone_url }}
               run: |
                 cruft create --no-input --extra-context '{"github_repository_id": "$REPOSITORY_ID"}' ./template-repository/ && \
                 cd my-package && \
@@ -87,7 +88,6 @@ jobs:
             - name: Setup credentials to access private repositories
               env:
                 MY_TOKEN: ${{ steps.token.outputs.token }}
-                CLONE_URL: ${{ needs.check_if_template_repository.outputs.clone_url }}
               run: |
                 git config --global url.https://$MY_TOKEN@github.com/.insteadOf https://github.com/ && \
                 git config --global init.defaultBranch main  && \
