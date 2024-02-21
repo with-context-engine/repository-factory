@@ -64,6 +64,8 @@ if not is_ml_inference_script:
         os.remove("src/serve/requirements.txt")
     if os.path.exists("src/serve/serverless.yml"):
         os.remove("src/serve/serverless.yml")
+    if os.path.exists(f"src/{package_name}/deploy-inference.py"):
+        os.remove(f"src/{package_name}/deploy-inference.py")
     if os.path.exists(f"src/{package_name}/deploy"):
         shutil.rmtree(f"src/{package_name}/deploy")
 
@@ -93,18 +95,20 @@ if is_ml_inference_script and is_api_endpoint:
         os.remove(".github/workflows/ship.yml")
     if os.path.exists("src/serve/api.py"):
         os.remove("src/serve/api.py")
+    if os.path.exists("src/serve/api-ml-inference.py"):
         os.rename("src/serve/api-ml-inference.py", "src/serve/api.py")
 
 if is_ml_inference_script and is_api_endpoint and not is_ml_training_script:
     if os.path.exists(f"src/{package_name}/deploy"):
         shutil.rmtree(f"src/{package_name}/deploy")
     if os.path.exists(f"src/{package_name}/deploy-inference.py"):
-        os.remove(f"src/{package_name}/deploy-inference.py")
         os.rename(f"src/{package_name}/deploy-inference.py", f"src/{package_name}/deploy.py")
 
 if is_api_endpoint and not is_ml_inference_script:
     if os.path.exists("src/serve/api-ml-inference.py"):
         os.remove("src/serve/api-ml-inference.py")
+    if os.path.exists(f"src/{package_name}/deploy-inference.py"):
+        os.remove(f"src/{package_name}/deploy-inference.py")
 
 if is_ml_training_script and is_ml_inference_script:
     if os.path.exists(f"src/{package_name}/deploy-inference.py"):
