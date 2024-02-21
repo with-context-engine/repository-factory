@@ -1,7 +1,6 @@
 name: Setup Repository
-on: 
-    workflow_dispatch:
-
+on:
+  workflow_dispatch:
 jobs:
     check_if_template_repository:
         name: Check if template repository.
@@ -71,8 +70,14 @@ jobs:
                 echo "$PWD/.venv/bin" >> $GITHUB_PATH
 
             - name: Install Cruft
+              if: runner.os == 'Linux'
               run: |
                 uv pip install cruft
+
+            - name: Install Cruft and DVC
+              if: runner.os == 'Windows'
+              run: |
+                uv pip install cruft "dvc[s3]"
 
             - name: Install Cruft and Apply Issue Choice
               # Update this to accept a JSON as a string and pass it to the cruft update command. 
