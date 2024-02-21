@@ -82,26 +82,10 @@ jobs:
                 cruft create --no-input --extra-context '{"github_repository_id": "$REPOSITORY_ID"}' ./template-repository/ && \
                 cd my-package && \
                 cruft update --variables-to-update '{"with_fastapi_api": "1", "package_name": "Test API"}' -y && \
-                git init && \
-                git remote add origin $CLONE_URL
+                cd .. && \
+                ls -R
+                
 
-            - name: Setup credentials to access private repositories
-              env:
-                MY_TOKEN: ${{ steps.token.outputs.token }}
-              run: |
-                git config --global url.https://$MY_TOKEN@github.com/.insteadOf https://github.com/ && \
-                git config --global init.defaultBranch main
-
-            - name: Commit and Push Changes
-              uses: stefanzweifel/git-auto-commit-action@v5
-              with:
-                commit_message: "init: setup repository from template"
-                commit_user_name: "github-actions[bot]"
-                commit_user_email: "github-actions[bot]@users.noreply.github.com"
-                commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
-                create_branch: true
-                branch: "cookiecutter"
-                repository: ./my-package
 
             
 
