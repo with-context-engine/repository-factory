@@ -88,7 +88,7 @@ jobs:
                 MY_TOKEN: ${{ steps.token.outputs.token }}
                 CLONE_URL: ${{ needs.check_if_template_repository.outputs.clone_url }}
               run: |
-                git config --global url.https://${MY_TOKEN}@github.com/.insteadOf https://github.com/ && \
+                git config --global url.https://$MY_TOKEN@github.com/.insteadOf https://github.com/ && \
                 git config --global init.defaultBranch main  && \
                 git remote add origin $CLONE_URL
 
