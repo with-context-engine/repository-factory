@@ -75,6 +75,7 @@ jobs:
                 uv pip install cruft
 
             - name: Install Cruft and Apply Issue Choice
+              # Update this to accept a JSON as a string and pass it to the cruft update command. 
               env: 
                 REPOSITORY_ID: ${{ needs.check_if_template_repository.outputs.repository_id }}
                 CLONE_URL: ${{ needs.check_if_template_repository.outputs.clone_url }}
@@ -82,7 +83,7 @@ jobs:
                 cruft create --no-input --extra-context '{"github_repository_id": "'$REPOSITORY_ID'"}' ./template-repository/ && \
                 cd my-package && \
                 cruft update --variables-to-update '{"with_fastapi_api": "1", "package_name": "Test API"}' -y
-
+            
             - name: Delete contents of template-repository/ except .git
               shell: bash
               run: |
