@@ -1,13 +1,17 @@
 {
   "organization_name": "With Context",
   "package_name": "My Package",
+  "github_repository_id": "735676626",
   "package_description": "A Python package that ...",
   "package_url": "https://github.com/user/my-package",
   "author_name": "John Smith",
   "author_email": "john@example.com",
   "python_version": "3.8",
   "docker_image": "python:$PYTHON_VERSION-slim",
-  "development_environment": ["simple", "strict"],
+  "development_environment": [
+    "simple",
+    "strict"
+  ],
   "with_conventional_commits": "{% if cookiecutter.development_environment == 'simple' %}0{% else %}1{% endif %}",
   "with_fastapi_api": "0",
   "with_jupyter_lab": "0",
@@ -17,8 +21,14 @@
   "with_typer_cli": "0",
   "with_ml_training": "0",
   "with_ml_inference": "0",
-  "continuous_integration": ["GitHub", "GitLab"],
-  "docstring_style": ["NumPy", "Google"],
+  "continuous_integration": [
+    "GitHub",
+    "GitLab"
+  ],
+  "docstring_style": [
+    "NumPy",
+    "Google"
+  ],
   "private_package_repository_name": "",
   "private_package_repository_url": "",
   "__organization_name_kebab_case": "{{ cookiecutter.organization_name|slugify }}",
