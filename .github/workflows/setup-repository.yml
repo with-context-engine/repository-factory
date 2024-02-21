@@ -24,12 +24,12 @@ jobs:
                 -H "Accept: application/vnd.github+json" \
                 -H "Authorization: Bearer $PAT_TOKEN" \
                 -H "X-GitHub-Api-Version: 2022-11-28" \
-                https://api.github.com/repos/$GITHUB_REPOSITORY)
+                https://api.github.com/repos/$GITHUB_REPOSITORY )
 
                 echo "REPOSITORY_ID=$(echo $RESPONSE | jq -r ".id")" >> $GITHUB_OUTPUT
                 echo "EXIT_STATUS=$(echo $RESPONSE | jq -r ".is_template")" >> $GITHUB_OUTPUT
-                echo $REPOSITORY_ID
-                echo $EXIT_STATUS
+                echo $RESPONSE | jq -r ".id"
+
         outputs:
           repository_id: ${{ steps.github_api.outputs.REPOSITORY_ID }}
           is_template: ${{ steps.github_api.outputs.EXIT_STATUS }}
