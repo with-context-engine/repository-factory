@@ -15,78 +15,85 @@ is_publishable_package = "{{ not cookiecutter.with_fastapi_api|int and not cooki
 is_ml_training_script = int("{{ cookiecutter.with_ml_training }}")
 is_ml_inference_script = int("{{ cookiecutter.with_ml_inference }}")
 
-# Remove py.typed and Dependabot if not in strict mode.
-if development_environment != "strict":
-    os.remove(f"src/{package_name}/py.typed")
-    os.remove(".github/dependabot.yml")
+try:
+    # Remove py.typed and Dependabot if not in strict mode.
+    if development_environment != "strict":
+        os.remove(f"src/{package_name}/py.typed")
+        os.remove(".github/dependabot.yml")
 
-# Remove FastAPI if not selected.
-if not with_fastapi_api:
-    os.remove(f"src/serve/api.py")
-    os.remove("__tests__/test_api.py")
+    # Remove FastAPI if not selected.
+    if not with_fastapi_api:
+        os.remove(f"src/serve/api.py")
+        os.remove("__tests__/test_api.py")
 
-# Remove Sentry if not selected.
-if not with_sentry_logging:
-    os.remove(f"src/{package_name}/sentry.py")
-    os.remove("__tests__/test_sentry.py")
+    # Remove Sentry if not selected.
+    if not with_sentry_logging:
+        os.remove(f"src/{package_name}/sentry.py")
+        os.remove("__tests__/test_sentry.py")
 
-# Remove Streamlit if not selected.
-if not with_streamlit_app:
-    os.remove(f"src/serve/app.py")
+    # Remove Streamlit if not selected.
+    if not with_streamlit_app:
+        os.remove(f"src/serve/app.py")
 
-# Remove ML training scripts if not selected.
-if not is_ml_training_script:
-    os.remove(f"src/{package_name}/fit.py")
-    os.remove("__tests__/test_train.py")
-    os.remove(".github/workflows/train.yml")
-    shutil.rmtree(f"src/{package_name}/train")
+    # Remove ML training scripts if not selected.
+    if not is_ml_training_script:
+        os.remove(f"src/{package_name}/fit.py")
+        os.remove("__tests__/test_train.py")
+        os.remove(".github/workflows/train.yml")
+        shutil.rmtree(f"src/{package_name}/train")
 
-# Remove ML inference scripts if not selected.
-if not is_ml_inference_script:
-    os.remove(f"src/{package_name}/deploy.py")
-    os.remove(".github/workflows/endpoint.yml")
-    os.remove("src/serve/package.json")
-    os.remove("src/serve/requirements.txt")
-    os.remove("src/serve/serverless.yml")
-    os.remove(f"src/{package_name}/deploy-inference.py")
-    shutil.rmtree(f"src/{package_name}/deploy")
+    # Remove ML inference scripts if not selected.
+    if not is_ml_inference_script:
+        os.remove(f"src/{package_name}/deploy.py")
+        os.remove(".github/workflows/endpoint.yml")
+        os.remove("src/serve/package.json")
+        os.remove("src/serve/requirements.txt")
+        os.remove("src/serve/serverless.yml")
+        os.remove(f"src/{package_name}/deploy-inference.py")
+        shutil.rmtree(f"src/{package_name}/deploy")
 
-# Neither ML training nor inference is selected and no FastAPI or Streamlit.
-if not is_ml_training_script and not is_ml_inference_script or (not with_fastapi_api and not with_streamlit_app):
-    os.remove(f"src/{package_name}/settings.py")
-    os.remove(".github/workflows/serve.yml")
-    shutil.rmtree("src/serve")
+    # Neither ML training nor inference is selected.
+    if not is_ml_training_script and not is_ml_inference_script:
+        os.remove(f"src/{package_name}/settings.py")
+        os.remove(".github/workflows/serve.yml")
 
-# Remove Typer if not selected.
-if not with_typer_cli:
-    os.remove(f"src/{package_name}/cli.py")
-    os.remove("__tests__/test_cli.py")
+    # Remove Typer if not selected.
+    if not with_typer_cli:
+        os.remove(f"src/{package_name}/cli.py")
+        os.remove("__tests__/test_cli.py")
 
-if is_ml_inference_script and is_api_endpoint:
-    os.remove(".github/workflows/ship.yml")
-    os.remove("src/serve/api.py")
-    os.rename("src/serve/api-ml-inference.py", "src/serve/api.py")
+    # Remove Serve Directory if neither FastAPI nor Streamlit is selected.
+    if not with_fastapi_api and not with_streamlit_app:
+        os.remove(".github/workflows/serve.yml")
+        shutil.rmtree("src/serve")
 
-if is_ml_inference_script and is_api_endpoint and not is_ml_training_script:
-    shutil.rmtree(f"src/{package_name}/deploy")
-    os.remove(f"src/{package_name}/deploy.py")
-    os.rename(f"src/{package_name}/deploy-inference.py", f"src/{package_name}/deploy.py")
-
-if is_api_endpoint and not is_ml_inference_script:
-    os.remove("src/serve/api-ml-inference.py")
-
-if is_ml_training_script and is_ml_inference_script:
-    os.remove(f"src/{package_name}/deploy-inference.py")
-
-# Remove the continuous integration provider that is not selected.
-if continuous_integration != "GitHub":
-    shutil.rmtree(".github/")
-elif continuous_integration != "GitLab":
-    os.remove(".gitlab-ci.yml")
-
-# Remove unused GitHub Actions workflows.
-if continuous_integration == "GitHub":
-    if not is_deployable_app and not is_api_endpoint:
+    if is_ml_inference_script and is_api_endpoint:
         os.remove(".github/workflows/ship.yml")
-    if not is_publishable_package:
-        os.remove(".github/workflows/publish.yml")
+        os.remove("src/serve/api.py")
+        os.rename("src/serve/api-ml-inference.py", "src/serve/api.py")
+
+    if is_ml_inference_script and is_api_endpoint and not is_ml_training_script:
+        shutil.rmtree(f"src/{package_name}/deploy")
+        os.remove(f"src/{package_name}/deploy.py")
+        os.rename(f"src/{package_name}/deploy-inference.py", f"src/{package_name}/deploy.py")
+
+    if is_api_endpoint and not is_ml_inference_script:
+        os.remove("src/serve/api-ml-inference.py")
+
+    if is_ml_training_script and is_ml_inference_script:
+        os.remove(f"src/{package_name}/deploy-inference.py")
+
+    # Remove the continuous integration provider that is not selected.
+    if continuous_integration != "GitHub":
+        shutil.rmtree(".github/")
+    elif continuous_integration != "GitLab":
+        os.remove(".gitlab-ci.yml")
+
+    # Remove unused GitHub Actions workflows.
+    if continuous_integration == "GitHub":
+        if not is_deployable_app and not is_api_endpoint:
+            os.remove(".github/workflows/ship.yml")
+        if not is_publishable_package:
+            os.remove(".github/workflows/publish.yml")
+except FileNotFoundError:
+    pass
