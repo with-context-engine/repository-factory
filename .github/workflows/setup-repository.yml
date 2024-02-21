@@ -62,26 +62,17 @@ jobs:
                 cd my-package
                 cruft update --variables-to-update '{"with_fastapi_api": "1", "package_name": "Test API"}' -y
                 git init
-                git config init.defaultBranch main
                 
+            - name: Reinitialize git repository
+              shell: bash
+              run: |
+                git config --global user.email "github-actions[bot]@users.noreply.github.com" && \
+                git config --global user.name "github-actions[bot]" && \
+                git checkout --orphan temp-branch && \
+                git add . && \
+                git commit -m 'Initial commit' && \
+                git push origin temp-branch:cookiecutter -f
 
-
-            - name: Commit and Push Changes
-              uses: stefanzweifel/git-auto-commit-action@v5
-              with:
-                commit_message: "refactor: Create Repository from Template"
-                commit_user_name: "github-actions[bot]"
-                commit_user_email: "github-actions[bot]@users.noreply.github.com"
-                commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
-                create_branch: true
-                branch: "cookiecutter"
-                repository: ./my-package/
-
-                
-                
-
-              
-        
             
 
 
