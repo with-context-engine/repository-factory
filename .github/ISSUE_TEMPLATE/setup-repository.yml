@@ -1,7 +1,13 @@
 name: 📇 Make a Repository Customization
-description: This is an issue template that allows you to choose how you want your desired Repository to appear. 
-title: Name the Repository Customization you're making.
+description: This is an issue template that allows you to choose how you want your desired Repository to appear.
+title: Enter a short description of what this repository is supposed to do. 
 body:
+- type: input
+  id: contact
+  attributes:
+    label: Contact Details
+    description: What is the github email of the person who will be responsible for this repository?
+    placeholder: ex. email@example.com
 - type: markdown
   attributes:
     value: |
@@ -11,7 +17,7 @@ body:
       ## :warning: Defaults
       The default option is Package Repository.
 
-      ## Table of Choices
+      ## Choices
       | No. | Category | Item | Jupyter | Additional Info |
       |-----|----------|------|---------|-------|
       | 1   | Python   | Package Repository        | :x: | `typer` is enabled by default with ability to push to PyPi |
