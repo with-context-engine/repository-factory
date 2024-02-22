@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "poetry-cookiecutter"
+version = "0.1.0"
+description = ""
+authors = ["Ajay Bhargava <bhargava.ajay@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pytest = "^8.0.1"
+pydantic = "^2.6.1"
+typer = "^0.9.0"
+snapshottest = "^0.6.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "__tests__",
+]
