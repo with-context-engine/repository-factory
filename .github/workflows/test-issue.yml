@@ -10,8 +10,8 @@ jobs:
   parse-issue:
     runs-on: ubuntu-latest
     permissions:
-    id-token: write
-    contents: write
+      id-token: write
+      contents: write
     outputs:
       jsonString: ${{ steps.create-cruft-json.outputs.jsonString }}
     steps:
@@ -43,11 +43,6 @@ jobs:
     - name: Create setup.json
       run: echo '${{ steps.issue-parser.outputs.jsonString }}' > setup.json
 
-    # - name: Create Cruft JSON File
-    #   id: create-cruft-json
-    #   run: |
-    #     python3 parse.py find-number setup.json
-    
     - name: Close Issue
       if: ${{ steps.issue-parser.outputs.jsonString != null }}
       uses: peter-evans/close-issue@v1
