@@ -1,6 +1,5 @@
 name: 📇 Make a Repository Customization
 description: This is an issue template that allows you to choose how you want your desired Repository to appear.
-title: Enter a short description of what this repository is supposed to do. 
 body:
 - type: input
   id: contact
@@ -8,6 +7,12 @@ body:
     label: Contact Details
     description: What is the github email of the person who will be responsible for this repository?
     placeholder: ex. email@example.com
+- type: input
+  id: repository_description
+  attributes:
+    label: Repository Description
+    description: What is the description of the repository?
+    placeholder: ex. This is a repository for a Python package that uses Typer for CLI
 - type: markdown
   attributes:
     value: |
