@@ -85,7 +85,12 @@ jobs:
               poetry run python3 parse.py setup.json --github-repository $GITHUB_REPOSITORY --github-repository-owner $GITHUB_REPOSITORY_OWNER >> parsed.json
               DVC=$(jq -r '.with_ml_training' parsed.json)
               echo "DVC_ENABLEMENT=$(if [[ $DVC -eq 0 ]]; then echo "false"; else echo "true"; fi)" >> $GITHUB_OUTPUT
-              echo "JSON_STRING=$(cat parsed.json)" >> $GITHUB_OUTPUT    
+
+          - name: Upload parsed.json
+            uses: actions/upload-artifact@v4
+            with:
+              name: parsed_configuration
+              path: parsed.json  
 
           - name: Close Issue
             if: ${{ steps.issue-parser.outputs.jsonString != null }}
@@ -96,7 +101,6 @@ jobs:
 
       outputs:
         DVC_ENABLEMENT: ${{ steps.populate-variables.outputs.DVC_ENABLEMENT }}
-        JSON_STRING: ${{ steps.populate-variables.outputs.JSON_STRING }}
 
     setup_repository:
       name: Setup Repository
@@ -137,13 +141,17 @@ jobs:
               run: |
                 uv pip install cruft
 
+            - name: Download parsed.json
+              uses: actions/download-artifact@v4
+              with:
+                name: parsed_configuration
+
             - name: Echo DVC and JSON_STRING
               env: 
                 DVC_ENABLEMENT: ${{ needs.parse_issue_output.outputs.DVC_ENABLEMENT }}
-                JSON_STRING: ${{ needs.parse_issue_output.outputs.JSON_STRING }}
               run: |
                 echo $DVC_ENABLEMENT
-                echo $JSON_STRING
+                cat parsed.json
 
             - name: Install Cruft and Apply Issue Choice
               shell: bash
@@ -151,11 +159,10 @@ jobs:
               env: 
                 REPOSITORY_ID: ${{ needs.check_if_template_repository.outputs.repository_id }}
                 CLONE_URL: ${{ needs.check_if_template_repository.outputs.clone_url }}
-                JSON_STRING: ${{ needs.parse_issue_output.outputs.JSON_STRING }}
               run: |
                 cruft create --no-input --extra-context "{\"github_repository_id\": \"$REPOSITORY_ID\"}" ./template-repository/ && \
                 cd my-package && \
-                cruft update --variables-to-update '$JSON_STRING' -y
+                cruft update --variables-to-update-file parsed.json -y
             
             - name: Delete contents of template-repository/ except .git
               shell: bash
