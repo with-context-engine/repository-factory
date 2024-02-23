@@ -100,7 +100,7 @@ jobs:
     setup_repository:
         name: Setup Repository
         runs-on: ubuntu-latest
-        needs: check_if_template_repository, parse-issue
+        needs: [check_if_template_repository, parse-issue]
         if: |
           needs.check_if_template_repository.outputs.is_template == 'false'
         permissions:
