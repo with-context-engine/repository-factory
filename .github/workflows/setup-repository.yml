@@ -186,6 +186,7 @@ jobs:
             - name: Create Pull Request
               uses: peter-evans/create-pull-request@v6
               with:
+                token: ${{ steps.token.outputs.token }}
                 path: template-repository
                 commit-message: 'Setup Repository'
                 title: 'Setup Repository via Issue Logging.'
