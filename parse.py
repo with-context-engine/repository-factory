@@ -2,7 +2,12 @@ import json
 import typer
 from typing import Optional
 from src.poetry_cookiecutter.configurations import (
-    OPTION_1
+    OPTION_1,
+    OPTION_2,
+    OPTION_3,
+    OPTION_4,
+    OPTION_5,
+    OPTION_6
 )
 from src.poetry_cookiecutter.helpers import extract_issue_preferences, GithubConfig
 import json
@@ -34,7 +39,47 @@ def parse_inputs(json_data: str, github_repository: Optional[str] = None, github
             "author_email": data_dictionary['contact'],
             "package_url": f"https://github.com/{github_repository}"
         }, **OPTION_1}
-        print(json.dumps(result))  # Convert the dictionary to a JSON string
+        print(json.dumps(result))
+
+    if number == 2:
+        result = {**github_specifications, **{
+            "package_description": data_dictionary["repository_description"], 
+            "author_email": data_dictionary['contact'],
+            "package_url": f"https://github.com/{github_repository}"
+        }, **OPTION_2}
+        print(json.dumps(result))
+
+    if number == 3:
+        result = {**github_specifications, **{
+            "package_description": data_dictionary["repository_description"], 
+            "author_email": data_dictionary['contact'],
+            "package_url": f"https://github.com/{github_repository}"
+        }, **OPTION_3}
+        print(json.dumps(result))
+
+    if number == 4:
+        result = {**github_specifications, **{
+            "package_description": data_dictionary["repository_description"], 
+            "author_email": data_dictionary['contact'],
+            "package_url": f"https://github.com/{github_repository}"
+        }, **OPTION_4}
+        print(json.dumps(result))
+
+    if number == 5:
+        result = {**github_specifications, **{
+            "package_description": data_dictionary["repository_description"], 
+            "author_email": data_dictionary['contact'],
+            "package_url": f"https://github.com/{github_repository}"
+        }, **OPTION_5}
+        print(json.dumps(result))
+
+    if number == 6:
+        result = {**github_specifications, **{
+            "package_description": data_dictionary["repository_description"], 
+            "author_email": data_dictionary['contact'],
+            "package_url": f"https://github.com/{github_repository}"
+        }, **OPTION_6}
+        print(json.dumps(result))
     
 if __name__ == "__main__":
     app()
