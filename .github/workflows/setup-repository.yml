@@ -85,7 +85,7 @@ jobs:
       - name: Populate Variables
         id: populate-variables
         run: |
-          echo "DVC_ENABLEMENT=$(jq -r '.with_ml_training' parsed.json)" >> $GITHUB_OUTPUT
+          echo "DVC_ENABLEMENT=$(jq -r '.with_ml_training' parsed.json | if [ \$(cat) -eq 0 ]; then echo 'false'; else echo 'true'; fi)" >> $GITHUB_OUTPUT
           echo "JSON_STRING=$(cat parsed.json)" >> $GITHUB_OUTPUT 
 
       - name: Close Issue
@@ -135,7 +135,6 @@ jobs:
                 echo "$PWD/.venv/bin" >> $GITHUB_PATH
 
             - name: Install Cruft
-              if: needs.parse-issue.outputs.DVC_ENABLEMENT == 0
               run: |
                 uv pip install cruft
 
@@ -158,7 +157,7 @@ jobs:
                 cp -ra my-package/. template-repository/
                 
             - name: Add DVC Remote
-              if: needs.parse-issue.outputs.DVC_ENABLEMENT == 1
+              if: needs.parse-issue.outputs.DVC_ENABLEMENT == 'true'
               run: |
                 cd template-repository/
                 uv pip install "dvc[s3]"
