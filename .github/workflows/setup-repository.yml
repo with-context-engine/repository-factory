@@ -85,7 +85,8 @@ jobs:
       - name: Populate Variables
         id: populate-variables
         run: |
-          echo "DVC_ENABLEMENT=$(jq -r '.with_ml_training' parsed.json | if [ \$(cat) -eq 0 ]; then echo 'false'; else echo 'true'; fi)" >> $GITHUB_OUTPUT
+          DVC=$(jq -r '.with_ml_training' parsed.json)
+          echo "DVC_ENABLEMENT=$(if [[ $DVC -eq 0 ]]; then echo "false"; else echo "true"; fi)" >> $GITHUB_OUTPUT    
           echo "JSON_STRING=$(cat parsed.json)" >> $GITHUB_OUTPUT 
 
       - name: Close Issue
