@@ -34,52 +34,103 @@ def parse_inputs(json_data: str, github_repository: Optional[str] = None, github
     number = int(extract_issue_preferences(json_data))
 
     if number == 1:
-        result = {**github_specifications, **{
-            "package_description": data_dictionary["repository_description"], 
-            "author_email": data_dictionary['contact'],
-            "package_url": f"https://github.com/{github_repository}"
-        }, **OPTION_1}
+        result = {
+            "context": {
+                "cookiecutter": {
+                    **github_specifications,
+                    **{
+                        "package_description": data_dictionary["repository_description"],
+                        "author_email": data_dictionary['contact'],
+                        "package_url": f"https://github.com/{github_repository}"
+                    },
+                    **OPTION_1
+                }
+            }
+        }
         print(json.dumps(result))
 
-    if number == 2:
-        result = {**github_specifications, **{
-            "package_description": data_dictionary["repository_description"], 
-            "author_email": data_dictionary['contact'],
-            "package_url": f"https://github.com/{github_repository}"
-        }, **OPTION_2}
-        print(json.dumps(result))
-
-    if number == 3:
-        result = {**github_specifications, **{
-            "package_description": data_dictionary["repository_description"], 
-            "author_email": data_dictionary['contact'],
-            "package_url": f"https://github.com/{github_repository}"
-        }, **OPTION_3}
-        print(json.dumps(result))
-
-    if number == 4:
-        result = {**github_specifications, **{
-            "package_description": data_dictionary["repository_description"], 
-            "author_email": data_dictionary['contact'],
-            "package_url": f"https://github.com/{github_repository}"
-        }, **OPTION_4}
-        print(json.dumps(result))
-
-    if number == 5:
-        result = {**github_specifications, **{
-            "package_description": data_dictionary["repository_description"], 
-            "author_email": data_dictionary['contact'],
-            "package_url": f"https://github.com/{github_repository}"
-        }, **OPTION_5}
-        print(json.dumps(result))
-
-    if number == 6:
-        result = {**github_specifications, **{
-            "package_description": data_dictionary["repository_description"], 
-            "author_email": data_dictionary['contact'],
-            "package_url": f"https://github.com/{github_repository}"
-        }, **OPTION_6}
+    elif number == 2:
+        result = {
+            "context": {
+                "cookiecutter": {
+                    **github_specifications,
+                    **{
+                        "package_description": data_dictionary["repository_description"],
+                        "author_email": data_dictionary['contact'],
+                        "package_url": f"https://github.com/{github_repository}"
+                    },
+                    **OPTION_2
+                }
+            }
+        }
         print(json.dumps(result))
     
+    elif number == 3:
+        result = {
+            "context": {
+                "cookiecutter": {
+                    **github_specifications,
+                    **{
+                        "package_description": data_dictionary["repository_description"],
+                        "author_email": data_dictionary['contact'],
+                        "package_url": f"https://github.com/{github_repository}"
+                    },
+                    **OPTION_3
+                }
+            }
+        }
+        print(json.dumps(result))
+
+    elif number == 4:
+        result = {
+            "context": {
+                "cookiecutter": {
+                    **github_specifications,
+                    **{
+                        "package_description": data_dictionary["repository_description"],
+                        "author_email": data_dictionary['contact'],
+                        "package_url": f"https://github.com/{github_repository}"
+                    },
+                    **OPTION_4
+                }
+            }
+        }
+        print(json.dumps(result))
+
+    elif number == 5:
+        result = {
+            "context": {
+                "cookiecutter": {
+                    **github_specifications,
+                    **{
+                        "package_description": data_dictionary["repository_description"],
+                        "author_email": data_dictionary['contact'],
+                        "package_url": f"https://github.com/{github_repository}"
+                    },
+                    **OPTION_5
+                }
+            }
+        }
+        print(json.dumps(result))
+
+    elif number == 6:
+        result = {
+            "context": {
+                "cookiecutter": {
+                    **github_specifications,
+                    **{
+                        "package_description": data_dictionary["repository_description"],
+                        "author_email": data_dictionary['contact'],
+                        "package_url": f"https://github.com/{github_repository}"
+                    },
+                    **OPTION_6
+                }
+            }
+        }
+        print(json.dumps(result))
+
+    else:
+        raise ValueError("The number is not valid.")
+
 if __name__ == "__main__":
     app()

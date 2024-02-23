@@ -12,7 +12,7 @@ OPTION_1 = {
     "with_ml_training": "0",
     "with_ml_inference": "0",
     "continuous_integration": "GitHub",
-    "docstring_style": "Numpy"
+    "docstring_style": "NumPy"
 }
 
 # Pydantic Repository:
@@ -29,7 +29,7 @@ OPTION_2 = {
     "with_ml_training": "0",
     "with_ml_inference": "0",
     "continuous_integration": "GitHub",
-    "docstring_style": "Numpy"
+    "docstring_style": "NumPy"
 }
 
 # Streamlit Repository:
@@ -46,7 +46,7 @@ OPTION_3 = {
     "with_ml_training": "0",
     "with_ml_inference": "0",
     "continuous_integration": "GitHub",
-    "docstring_style": "Numpy"
+    "docstring_style": "NumPy"
 }
 
 # FastAPI Repository:
@@ -63,7 +63,7 @@ OPTION_4 = {
     "with_ml_training": "0",
     "with_ml_inference": "0",
     "continuous_integration": "GitHub",
-    "docstring_style": "Numpy"
+    "docstring_style": "NumPy"
 }
 
 # FastAPI with ML Inference
@@ -80,7 +80,7 @@ OPTION_5 = {
     "with_ml_training": "0",
     "with_ml_inference": "1",
     "continuous_integration": "GitHub",
-    "docstring_style": "Numpy"
+    "docstring_style": "NumPy"
 }
 
 # FastAPI with ML Training and Inference
@@ -97,5 +97,5 @@ OPTION_6 = {
     "with_ml_training": "1",
     "with_ml_inference": "1",
     "continuous_integration": "GitHub",
-    "docstring_style": "Numpy"
+    "docstring_style": "NumPy"
 }

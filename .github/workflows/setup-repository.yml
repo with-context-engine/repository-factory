@@ -82,15 +82,15 @@ jobs:
             id: populate-variables
             shell: bash
             run: |
-              poetry run python3 parse.py setup.json --github-repository $GITHUB_REPOSITORY --github-repository-owner $GITHUB_REPOSITORY_OWNER >> parsed.json
-              DVC=$(jq -r '.with_ml_training' parsed.json)
+              poetry run python3 parse.py setup.json --github-repository $GITHUB_REPOSITORY --github-repository-owner $GITHUB_REPOSITORY_OWNER >> configuration.json
+              DVC=$(jq -r '.with_ml_training' configuration.json)
               echo "DVC_ENABLEMENT=$(if [[ $DVC -eq 0 ]]; then echo "false"; else echo "true"; fi)" >> $GITHUB_OUTPUT
 
-          - name: Upload parsed.json
+          - name: Upload configuration.json
             uses: actions/upload-artifact@v4
             with:
               name: parsed_configuration
-              path: parsed.json  
+              path: configuration.json  
 
           - name: Close Issue
             if: ${{ steps.issue-parser.outputs.jsonString != null }}
@@ -141,10 +141,13 @@ jobs:
               run: |
                 uv pip install cruft
 
-            - name: Download parsed.json
+            - name: Download configuration.json
               uses: actions/download-artifact@v4
               with:
                 name: parsed_configuration
+
+            - name: Describe configuration.json
+              run: cat configuration.json
 
             - name: Install Cruft and Apply Issue Choice
               shell: bash
@@ -154,7 +157,7 @@ jobs:
               run: |
                 cruft create --no-input --extra-context "{\"github_repository_id\": \"$REPOSITORY_ID\"}" ./template-repository/ && \
                 cd my-package && \
-                cruft update --variables-to-update-file ../parsed.json -y
+                cruft update --variables-to-update-file ../configuration.json -y
             
             - name: Delete contents of template-repository/ except .git
               shell: bash
