@@ -1,7 +1,7 @@
 name: Setup Cookie Cutter Repository
 on:
   issues:
-    types: [opened, reopened]
+    types: opened
 
 concurrency: 'main'
 jobs:
@@ -111,6 +111,7 @@ jobs:
       permissions:
         id-token: write
         contents: write
+        pull-requests: write
       steps:
             - name: Generate App Token
               uses: tibdex/github-app-token@v2
@@ -176,17 +177,22 @@ jobs:
                 dvc init -f -q
                 dvc remote add -d $REPO_NAME s3://with-context-sagemaker/datasets/$REPO_NAME
             
-            - name: Git commit and push to new branch
+            - name: Remove Setup Files.
               shell: bash
               run: |
                 cd template-repository/
                 rm .github/workflows/setup-repository.yml
-                git add -A
-                git config --global user.email "github-actions[bot]@users.noreply.github.com"
-                git config --global user.name "github-actions[bot]"
-                git commit -m 'Initialize repository from template.'
-                git push origin HEAD:cookiecutter
-                  
+
+            - name: Create Pull Request
+              uses: peter-evans/create-pull-request@v6
+              with:
+                path: template-repository
+                commit-message: 'Setup Repository'
+                title: 'Setup Repository via Issue Logging.'
+                body: 'This PR was created automatically via the setup-repository.yml workflow. Merge to accept the repository setup.'
+                branch: 'setup/repository'
+                branch-suffix: short-commit-hash
+
 
 
             
