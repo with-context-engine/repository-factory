@@ -79,6 +79,7 @@ jobs:
             run: echo '${{ steps.issue-parser.outputs.jsonString }}' > setup.json
 
           - name: Parse setup.json
+            id: populate-variables
             shell: bash
             run: |
               poetry run python3 parse.py setup.json --github-repository $GITHUB_REPOSITORY --github-repository-owner $GITHUB_REPOSITORY_OWNER >> parsed.json
@@ -135,6 +136,14 @@ jobs:
             - name: Install Cruft
               run: |
                 uv pip install cruft
+
+            - name: Echo DVC and JSON_STRING
+              env: 
+                DVC_ENABLEMENT: ${{ needs.parse_issue_output.outputs.DVC_ENABLEMENT }}
+                JSON_STRING: ${{ needs.parse_issue_output.outputs.JSON_STRING }}
+              run: |
+                echo $DVC_ENABLEMENT
+                echo $JSON_STRING
 
             - name: Install Cruft and Apply Issue Choice
               shell: bash
