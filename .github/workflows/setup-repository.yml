@@ -79,12 +79,9 @@ jobs:
         run: echo '${{ steps.issue-parser.outputs.jsonString }}' > setup.json
 
       - name: Parse setup.json
+        shell: bash
         run: |
           poetry run python3 parse.py setup.json --github-repository $GITHUB_REPOSITORY --github-repository-owner $GITHUB_REPOSITORY_OWNER >> parsed.json
-
-      - name: Populate Variables
-        id: populate-variables
-        run: |
           DVC=$(jq -r '.with_ml_training' parsed.json)
           echo "DVC_ENABLEMENT=$(if [[ $DVC -eq 0 ]]; then echo "false"; else echo "true"; fi)" >> $GITHUB_OUTPUT    
           echo "JSON_STRING="'$(cat parsed.json)'"" >> $GITHUB_OUTPUT 
