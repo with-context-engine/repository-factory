@@ -37,7 +37,7 @@ jobs:
         is_template: ${{ steps.github_api.outputs.EXIT_STATUS }}
         clone_url: ${{ steps.github_api.outputs.CLONE_URL }}
 
-    parse-issue:
+    parse_issue_output:
       name: Parse Github Issue
       needs: check_if_template_repository
       runs-on: ubuntu-latest
@@ -48,65 +48,65 @@ jobs:
         contents: write
         issues: write
       steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+          - name: Checkout Repository
+            uses: actions/checkout@v4
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1.3.4
-        with:
-          installer-parallel: true
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-        
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: poetry
-      
-      - name: Install Poetry Project
-        run: |
-          poetry env use 3.11
-          poetry install --no-interaction
-      
-      - name: Parse Issue
-        uses: stefanbuck/github-issue-parser@v3
-        id: issue-parser
-        with:
-          template-path: .github/ISSUE_TEMPLATE/setup-repository.yml
+          - name: Install Poetry
+            uses: snok/install-poetry@v1.3.4
+            with:
+              installer-parallel: true
+              virtualenvs-create: true
+              virtualenvs-in-project: true
+            
+          - name: Setup Python
+            uses: actions/setup-python@v5
+            with:
+              python-version: "3.11"
+              cache: poetry
+          
+          - name: Install Poetry Project
+            run: |
+              poetry env use 3.11
+              poetry install --no-interaction
+          
+          - name: Parse Issue
+            uses: stefanbuck/github-issue-parser@v3
+            id: issue-parser
+            with:
+              template-path: .github/ISSUE_TEMPLATE/setup-repository.yml
 
-      - name: Create setup.json
-        run: echo '${{ steps.issue-parser.outputs.jsonString }}' > setup.json
+          - name: Create setup.json
+            run: echo '${{ steps.issue-parser.outputs.jsonString }}' > setup.json
 
-      - name: Parse setup.json
-        shell: bash
-        run: |
-          poetry run python3 parse.py setup.json --github-repository $GITHUB_REPOSITORY --github-repository-owner $GITHUB_REPOSITORY_OWNER >> parsed.json
-          DVC=$(jq -r '.with_ml_training' parsed.json)
-          echo "DVC_ENABLEMENT=$(if [[ $DVC -eq 0 ]]; then echo "false"; else echo "true"; fi)" >> $GITHUB_OUTPUT    
-          echo "JSON_STRING="'$(cat parsed.json)'"" >> $GITHUB_OUTPUT 
+          - name: Parse setup.json
+            shell: bash
+            run: |
+              poetry run python3 parse.py setup.json --github-repository $GITHUB_REPOSITORY --github-repository-owner $GITHUB_REPOSITORY_OWNER >> parsed.json
+              DVC=$(jq -r '.with_ml_training' parsed.json)
+              echo "DVC_ENABLEMENT=$(if [[ $DVC -eq 0 ]]; then echo "false"; else echo "true"; fi)" >> $GITHUB_OUTPUT    
+              echo "JSON_STRING="'$(cat parsed.json)'"" >> $GITHUB_OUTPUT 
 
-      - name: Close Issue
-        if: ${{ steps.issue-parser.outputs.jsonString != null }}
-        uses: peter-evans/close-issue@v1
-        with:
-          issue-number: ${{ github.event.issue.number }}
-          comment: 'Issue #${{ github.event.issue.number }} We will now proceed to setup your repository.'
+          - name: Close Issue
+            if: ${{ steps.issue-parser.outputs.jsonString != null }}
+            uses: peter-evans/close-issue@v1
+            with:
+              issue-number: ${{ github.event.issue.number }}
+              comment: 'Issue #${{ github.event.issue.number }} We will now proceed to setup your repository.'
 
       outputs:
         DVC_ENABLEMENT: ${{ steps.populate-variables.outputs.DVC_ENABLEMENT }}
         JSON_STRING: ${{ steps.populate-variables.outputs.JSON_STRING }}
 
     setup_repository:
-        name: Setup Repository
-        runs-on: ubuntu-latest
-        needs: [parse-issue, check_if_template_repository]
-        if: |
-          needs.check_if_template_repository.outputs.is_template == 'false'
-        permissions:
-            id-token: write
-            contents: write
-        steps:
+      name: Setup Repository
+      runs-on: ubuntu-latest
+      needs: [parse_issue_output, check_if_template_repository]
+      if: |
+        needs.check_if_template_repository.outputs.is_template == 'false'
+      permissions:
+        id-token: write
+        contents: write
+      steps:
             - name: Generate App Token
               uses: tibdex/github-app-token@v2
               id: token
@@ -142,7 +142,7 @@ jobs:
               env: 
                 REPOSITORY_ID: ${{ needs.check_if_template_repository.outputs.repository_id }}
                 CLONE_URL: ${{ needs.check_if_template_repository.outputs.clone_url }}
-                JSON_STRING: ${{ needs.parse-issue.outputs.JSON_STRING }}
+                JSON_STRING: ${{ needs.parse_issue_output.outputs.JSON_STRING }}
               run: |
                 cruft create --no-input --extra-context "{\"github_repository_id\": \"$REPOSITORY_ID\"}" ./template-repository/ && \
                 cd my-package && \
@@ -158,7 +158,7 @@ jobs:
                 
             - name: Add DVC Remote
               shell: bash
-              if: needs.parse-issue.outputs.DVC_ENABLEMENT == 'true'
+              if: needs.parse_issue_output.outputs.DVC_ENABLEMENT == 'true'
               run: |
                 cd template-repository/
                 uv pip install "dvc[s3]"
