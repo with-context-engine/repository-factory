@@ -38,6 +38,8 @@ jobs:
         clone_url: ${{ steps.github_api.outputs.CLONE_URL }}
 
     parse-issue:
+      name: Parse Github Issue
+      needs: check_if_template_repository
       runs-on: ubuntu-latest
       if: |
         needs.check_if_template_repository.outputs.is_template == 'false'
@@ -100,7 +102,7 @@ jobs:
     setup_repository:
         name: Setup Repository
         runs-on: ubuntu-latest
-        needs: [check_if_template_repository, parse-issue]
+        needs: parse-issue
         if: |
           needs.check_if_template_repository.outputs.is_template == 'false'
         permissions:
