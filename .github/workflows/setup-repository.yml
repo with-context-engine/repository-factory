@@ -85,7 +85,7 @@ jobs:
               poetry run python3 parse.py setup.json --github-repository $GITHUB_REPOSITORY --github-repository-owner $GITHUB_REPOSITORY_OWNER >> parsed.json
               DVC=$(jq -r '.with_ml_training' parsed.json)
               echo "DVC_ENABLEMENT=$(if [[ $DVC -eq 0 ]]; then echo "false"; else echo "true"; fi)" >> $GITHUB_OUTPUT    
-              echo "JSON_STRING="'$(cat parsed.json)'"" >> $GITHUB_OUTPUT 
+              echo "JSON_STRING=$(cat parsed.json)" >> $GITHUB_OUTPUT 
 
           - name: Close Issue
             if: ${{ steps.issue-parser.outputs.jsonString != null }}
@@ -155,8 +155,7 @@ jobs:
               run: |
                 cruft create --no-input --extra-context "{\"github_repository_id\": \"$REPOSITORY_ID\"}" ./template-repository/ && \
                 cd my-package && \
-                echo $JSON_STRING && \
-                cruft update --variables-to-update $JSON_STRING -y
+                cruft update --variables-to-update '$JSON_STRING' -y
             
             - name: Delete contents of template-repository/ except .git
               shell: bash
