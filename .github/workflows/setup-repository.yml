@@ -94,7 +94,7 @@ jobs:
 
           - name: Close Issue
             if: ${{ steps.issue-parser.outputs.jsonString != null }}
-            uses: peter-evans/close-issue@v1
+            uses: peter-evans/close-issue@v3
             with:
               issue-number: ${{ github.event.issue.number }}
               comment: 'Issue #${{ github.event.issue.number }} We will now proceed to setup your repository.'
@@ -146,13 +146,6 @@ jobs:
               with:
                 name: parsed_configuration
 
-            - name: Echo DVC and JSON_STRING
-              env: 
-                DVC_ENABLEMENT: ${{ needs.parse_issue_output.outputs.DVC_ENABLEMENT }}
-              run: |
-                echo $DVC_ENABLEMENT
-                cat parsed.json
-
             - name: Install Cruft and Apply Issue Choice
               shell: bash
               # Update this to accept a JSON as a string and pass it to the cruft update command. 
@@ -162,7 +155,7 @@ jobs:
               run: |
                 cruft create --no-input --extra-context "{\"github_repository_id\": \"$REPOSITORY_ID\"}" ./template-repository/ && \
                 cd my-package && \
-                cruft update --variables-to-update-file parsed.json -y
+                cruft update --variables-to-update-file ../parsed.json -y
             
             - name: Delete contents of template-repository/ except .git
               shell: bash
