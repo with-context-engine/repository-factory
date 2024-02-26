@@ -3,200 +3,197 @@ on:
   issues:
     types: opened
 
-concurrency: 'main'
+concurrency: "main"
 jobs:
-    check_if_template_repository:
-      name: Check if template repository.
-      runs-on: ubuntu-latest
-      steps:
-          - name: Generate App Token
-            uses: tibdex/github-app-token@v2
-            id: token
-            with:
-              app_id: ${{ vars.APP_ID}}
-              private_key: ${{ secrets.APP_PEM_PRIVATE_KEY}}
-          
-          - name: Check if template repository
-            shell: bash
-            id: github_api
-            env:
-              APP_TOKEN: ${{ steps.token.outputs.token }}
-            run: |
-              RESPONSE=$(curl -L --silent \
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer $APP_TOKEN" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              https://api.github.com/repos/$GITHUB_REPOSITORY )
+  check_if_template_repository:
+    name: Check if template repository.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate App Token
+        uses: tibdex/github-app-token@v2
+        id: token
+        with:
+          app_id: ${{ vars.APP_ID}}
+          private_key: ${{ secrets.APP_PEM_PRIVATE_KEY}}
 
-              echo "REPOSITORY_ID=$(echo $RESPONSE | jq -r ".id")" >> $GITHUB_OUTPUT
-              echo "EXIT_STATUS=$(echo $RESPONSE | jq -r ".is_template")" >> $GITHUB_OUTPUT
-              echo "CLONE_URL=$(echo $RESPONSE | jq -r ".clone_url")" >> $GITHUB_OUTPUT
+      - name: Check if template repository
+        shell: bash
+        id: github_api
+        env:
+          APP_TOKEN: ${{ steps.token.outputs.token }}
+        run: |
+          RESPONSE=$(curl -L --silent \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer $APP_TOKEN" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          https://api.github.com/repos/$GITHUB_REPOSITORY )
 
-      outputs:
-        repository_id: ${{ steps.github_api.outputs.REPOSITORY_ID }}
-        is_template: ${{ steps.github_api.outputs.EXIT_STATUS }}
-        clone_url: ${{ steps.github_api.outputs.CLONE_URL }}
+          echo "REPOSITORY_ID=$(echo $RESPONSE | jq -r ".id")" >> $GITHUB_OUTPUT
+          echo "EXIT_STATUS=$(echo $RESPONSE | jq -r ".is_template")" >> $GITHUB_OUTPUT
+          echo "CLONE_URL=$(echo $RESPONSE | jq -r ".clone_url")" >> $GITHUB_OUTPUT
 
-    parse_issue_output:
-      name: Parse Github Issue
-      needs: check_if_template_repository
-      runs-on: ubuntu-latest
-      if: |
-        needs.check_if_template_repository.outputs.is_template == 'false'
-      permissions:
-        id-token: write
-        contents: write
-        issues: write
-      steps:
-          - name: Checkout Repository
-            uses: actions/checkout@v4
+    outputs:
+      repository_id: ${{ steps.github_api.outputs.REPOSITORY_ID }}
+      is_template: ${{ steps.github_api.outputs.EXIT_STATUS }}
+      clone_url: ${{ steps.github_api.outputs.CLONE_URL }}
 
-          - name: Install Poetry
-            uses: snok/install-poetry@v1.3.4
-            with:
-              installer-parallel: true
-              virtualenvs-create: true
-              virtualenvs-in-project: true
-            
-          - name: Setup Python
-            uses: actions/setup-python@v5
-            with:
-              python-version: "3.11"
-              cache: poetry
-          
-          - name: Install Poetry Project
-            run: |
-              poetry env use 3.11
-              poetry install --no-interaction
-          
-          - name: Parse Issue
-            uses: stefanbuck/github-issue-parser@v3
-            id: issue-parser
-            with:
-              template-path: .github/ISSUE_TEMPLATE/setup-repository.yml
+  parse_issue_output:
+    name: Parse Github Issue
+    needs: check_if_template_repository
+    runs-on: ubuntu-latest
+    if: |
+      needs.check_if_template_repository.outputs.is_template == 'false'
+    permissions:
+      id-token: write
+      contents: write
+      issues: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-          - name: Create setup.json
-            run: echo '${{ steps.issue-parser.outputs.jsonString }}' > setup.json
+      - name: Install Poetry
+        uses: snok/install-poetry@v1.3.4
+        with:
+          installer-parallel: true
+          virtualenvs-create: true
+          virtualenvs-in-project: true
 
-          - name: Parse setup.json
-            id: populate-variables
-            shell: bash
-            run: |
-              poetry run python3 parse.py setup.json --github-repository $GITHUB_REPOSITORY --github-repository-owner $GITHUB_REPOSITORY_OWNER >> configuration.json
-              DVC=$(jq -r '.with_ml_training' configuration.json)
-              echo "DVC_ENABLEMENT=$(if [[ $DVC -eq 0 ]]; then echo "false"; else echo "true"; fi)" >> $GITHUB_OUTPUT
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: poetry
 
-          - name: Upload configuration.json
-            uses: actions/upload-artifact@v4
-            with:
-              name: parsed_configuration
-              path: configuration.json  
+      - name: Install Poetry Project
+        run: |
+          poetry env use 3.11
+          poetry install --no-interaction
 
-          - name: Close Issue
-            if: ${{ steps.issue-parser.outputs.jsonString != null }}
-            uses: peter-evans/close-issue@v3
-            with:
-              issue-number: ${{ github.event.issue.number }}
-              comment: 'Issue #${{ github.event.issue.number }} We will now proceed to setup your repository.'
+      - name: Parse Issue
+        uses: stefanbuck/github-issue-parser@v3
+        id: issue-parser
+        with:
+          template-path: .github/ISSUE_TEMPLATE/setup-repository.yml
 
-      outputs:
-        DVC_ENABLEMENT: ${{ steps.populate-variables.outputs.DVC_ENABLEMENT }}
+      - name: Create setup.json
+        run: echo '${{ steps.issue-parser.outputs.jsonString }}' > setup.json
 
-    setup_repository:
-      name: Setup Repository
-      runs-on: ubuntu-latest
-      needs: [parse_issue_output, check_if_template_repository]
-      if: |
-        needs.check_if_template_repository.outputs.is_template == 'false'
-      permissions:
-        id-token: write
-        contents: write
-        pull-requests: write
-      steps:
-            - name: Generate App Token
-              uses: tibdex/github-app-token@v2
-              id: token
-              with:
-                app_id: ${{ vars.APP_ID}}
-                private_key: ${{ secrets.APP_PEM_PRIVATE_KEY}}
+      - name: Parse setup.json
+        id: populate-variables
+        shell: bash
+        run: |
+          poetry run python3 parse.py setup.json --github-repository $GITHUB_REPOSITORY --github-repository-owner $GITHUB_REPOSITORY_OWNER >> configuration.json
+          DVC=$(jq -r '.with_ml_training' configuration.json)
+          echo "DVC_ENABLEMENT=$(if [[ $DVC -eq 0 ]]; then echo "false"; else echo "true"; fi)" >> $GITHUB_OUTPUT
 
-            - name: Checkout Repository
-              uses: actions/checkout@v4
-              with:
-                path: template-repository
-                token: ${{ steps.token.outputs.token }}
-            
-            - name: Setup Python
-              uses: actions/setup-python@v5
-              with:
-                python-version: "3.11"
+      - name: Upload configuration.json
+        uses: actions/upload-artifact@v4
+        with:
+          name: parsed_configuration
+          path: configuration.json
 
-            - name: Create and activate a UV virtual environment (Unix)
-              run: |
-                curl -LsSf https://astral.sh/uv/install.sh | sh
-                uv venv .venv
-                echo "VIRTUAL_ENV=.venv" >> $GITHUB_ENV
-                echo "$PWD/.venv/bin" >> $GITHUB_PATH
+      - name: Close Issue
+        if: ${{ steps.issue-parser.outputs.jsonString != null }}
+        uses: peter-evans/close-issue@v3
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          comment: "Issue #${{ github.event.issue.number }} We will now proceed to setup your repository."
 
-            - name: Install Cruft
-              run: |
-                uv pip install cruft
+    outputs:
+      DVC_ENABLEMENT: ${{ steps.populate-variables.outputs.DVC_ENABLEMENT }}
 
-            - name: Download configuration.json
-              uses: actions/download-artifact@v4
-              with:
-                name: parsed_configuration
+  setup_repository:
+    name: Setup Repository
+    runs-on: ubuntu-latest
+    needs: [parse_issue_output, check_if_template_repository]
+    if: |
+      needs.check_if_template_repository.outputs.is_template == 'false'
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Generate App Token
+        uses: tibdex/github-app-token@v2
+        id: token
+        with:
+          app_id: ${{ vars.APP_ID}}
+          private_key: ${{ secrets.APP_PEM_PRIVATE_KEY}}
 
-            - name: Describe configuration.json
-              run: cat configuration.json
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          path: template-repository
+          token: ${{ steps.token.outputs.token }}
 
-            - name: Install Cruft and Apply Issue Choice
-              shell: bash
-              env: 
-                REPOSITORY_ID: ${{ needs.check_if_template_repository.outputs.repository_id }}
-                CLONE_URL: ${{ needs.check_if_template_repository.outputs.clone_url }}
-              run: |
-                cruft create --no-input --extra-context "{\"github_repository_id\": \"$REPOSITORY_ID\"}" ./template-repository/ && \
-                cd my-package && \
-                cruft update --variables-to-update-file ../configuration.json -y
-            
-            - name: Delete contents of template-repository/ except .git
-              shell: bash
-              run: |
-                shopt -s extglob
-                rm -rf template-repository/!(.git)
-                cp -ra my-package/. template-repository/
-                
-            - name: Add DVC Remote
-              shell: bash
-              if: needs.parse_issue_output.outputs.DVC_ENABLEMENT == 'true'
-              run: |
-                cd template-repository/
-                uv pip install "dvc[s3]"
-                REPO_NAME=$(echo $GITHUB_REPOSITORY | awk -F/ '{print $2}')
-                dvc init -f -q
-                dvc remote add -d $REPO_NAME s3://with-context-sagemaker/datasets/$REPO_NAME
-            
-            - name: Remove Setup Files.
-              shell: bash
-              run: |
-                cd template-repository/
-                rm .github/workflows/setup-repository.yml
-                rm .github/workflows/test-issue-parsing-script.yml
-                rm .github/workflows/test-cookiecutter-changes.yml
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-            - name: Create Pull Request
-              uses: peter-evans/create-pull-request@v6
-              with:
-                token: ${{ steps.token.outputs.token }}
-                path: template-repository
-                commit-message: 'Setup Repository'
-                title: 'Setup Repository via Issue Logging.'
-                body: 'This PR was created automatically via the setup-repository.yml workflow. Merge to accept the repository setup.'
-                branch: 'setup/repository'
-                branch-suffix: short-commit-hash
+      - name: Create and activate a UV virtual environment (Unix)
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          uv venv .venv
+          echo "VIRTUAL_ENV=.venv" >> $GITHUB_ENV
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
 
+      - name: Install Cruft
+        run: |
+          uv pip install cruft
 
+      - name: Download configuration.json
+        uses: actions/download-artifact@v4
+        with:
+          name: parsed_configuration
 
-            
-            
+      - name: Describe configuration.json
+        run: cat configuration.json
+
+      - name: Install Cruft and Apply Issue Choice
+        shell: bash
+        env:
+          REPOSITORY_ID: ${{ needs.check_if_template_repository.outputs.repository_id }}
+          CLONE_URL: ${{ needs.check_if_template_repository.outputs.clone_url }}
+        run: |
+          cruft create --no-input --extra-context "{\"github_repository_id\": \"$REPOSITORY_ID\"}" ./template-repository/ && \
+          cd my-package && \
+          cruft update --variables-to-update-file ../configuration.json -y
+
+      - name: Delete contents of template-repository/ except .git
+        shell: bash
+        run: |
+          shopt -s extglob
+          rm -rf template-repository/!(.git)
+          cp -ra my-package/. template-repository/
+
+      - name: Add DVC Remote
+        shell: bash
+        if: needs.parse_issue_output.outputs.DVC_ENABLEMENT == 'true'
+        run: |
+          cd template-repository/
+          uv pip install "dvc[s3]"
+          REPO_NAME=$(echo $GITHUB_REPOSITORY | awk -F/ '{print $2}')
+          dvc init -f -q
+          dvc remote add -d $REPO_NAME s3://with-context-sagemaker/datasets/$REPO_NAME
+
+      - name: Remove Setup Files.
+        shell: bash
+        run: |
+          cd template-repository/
+          rm .github/workflows/setup-repository.yml
+          rm .github/workflows/test-issue-parsing-script.yml
+          rm .github/workflows/test-cookiecutter-changes.yml
+          rm -rf .github/ISSUE_TEMPLATE
+          rm .github/CODEOWNERS
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ steps.token.outputs.token }}
+          path: template-repository
+          commit-message: "Setup Repository"
+          title: "Setup Repository via Issue Logging."
+          body: "This PR was created automatically via the setup-repository.yml workflow. Merge to accept the repository setup."
+          branch: "setup/repository"
+          branch-suffix: short-commit-hash
