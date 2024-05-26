@@ -76,7 +76,9 @@ jobs:
           template-path: .github/ISSUE_TEMPLATE/setup-repository.yml
 
       - name: Create setup.json
-        run: echo '${{ steps.issue-parser.outputs.jsonString }}' > setup.json
+        env:
+          JSON_STRING: ${{ steps.issue-parser.outputs.jsonString }}
+        run: echo $JSON_STRING > setup.json
 
       - name: Parse setup.json
         id: populate-variables
